@@ -35,11 +35,16 @@ brew install sqlite
 
 ##Compile the source code:
  make
-#run server:
-./bin/server
-#run client:
-./bin/client
-#delete bin and build
+#run server:  
+
+./bin/server  
+
+#run client:  
+
+./bin/client  
+
+#delete bin and build  
+
  make clean
 
 
@@ -51,8 +56,10 @@ brew install sqlite
 
  Send Message: gui tin nhan cho nguoi chi dinh.
 
-4. [Project Structure]
-chat-app/
+4. [Project Structure]  
+
+chat-app/  
+
 │
 ├── bin/               
 │   ├── client
