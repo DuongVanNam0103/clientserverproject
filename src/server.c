@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <netinet/in.h>
+#include <stdio.h>      //thu vien nhap xuat trong C
+#include <stdlib.h>     //chuyen doi du lieu, quan ly bo nho dong
+#include <string.h>     //thao tac voi chuoi ki tu trong c
+#include <unistd.h>     // cho sleep, tien trinh delay...
+#include <pthread.h>    //tao va quan ly cac luong thread
+#include <netinet/in.h> //giao thuc mang TCP/IP
 #include "database.h"
 
 #define PORT 8080
@@ -24,7 +24,7 @@ void send_to_client(int client_sock, const char *msg)
 {
     send(client_sock, msg, strlen(msg), 0);
 }
-
+// guwi tin nhan tu nguoi gui den nguoi nhan, khoa mutex dam bao chon nhieu luong truy cap  mot cach an toan
 void broadcast_message(const char *sender, const char *receiver, const char *msg)
 {
     pthread_mutex_lock(&clients_mutex);
@@ -43,6 +43,7 @@ void broadcast_message(const char *sender, const char *receiver, const char *msg
     pthread_mutex_unlock(&clients_mutex);
 
     /////////////////////////////////////////////////
+    // ham thonf bao gui tin nhan loi khi user khong online
     if (!found)
     {
         for (int i = 0; i < MAX_CLIENTS; i++)
@@ -57,6 +58,7 @@ void broadcast_message(const char *sender, const char *receiver, const char *msg
     else
     {
         //////////////////////////////////////////////////////////////////////
+        // ham thong bao da gui tin nhan
         for (int i = 0; i < MAX_CLIENTS; i++)
         {
             if (clients[i].logged_in && strcmp(clients[i].username, sender) == 0)
@@ -70,9 +72,10 @@ void broadcast_message(const char *sender, const char *receiver, const char *msg
         }
     }
 }
-
+// xoa client khoi he thong khi ngung ket noi or dang xuat
 void remove_client(int client_sock)
 {
+    // khoa mutex dam bao cho nhieu luong truy cap mot cach an toan
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
@@ -96,7 +99,8 @@ void *handle_client(void *arg)
     char username[50], password[50];
     int logged_in = 0;
 
-    // addd client
+    // add client
+    // khoa mutex dam bao chon nhieu luong truy mot cach an toan
     pthread_mutex_lock(&clients_mutex);
     int i;
     for (i = 0; i < MAX_CLIENTS; i++)
@@ -117,7 +121,7 @@ void *handle_client(void *arg)
         if (len <= 0)
             break; // Client shutdown
         buffer[len] = '\0';
-
+        // dang ki user moi
         if (strncmp(buffer, "REGISTER", 8) == 0)
         {
             sscanf(buffer + 9, "%s %s", username, password);
@@ -132,13 +136,13 @@ void *handle_client(void *arg)
             if (login_user(username, password))
             {
                 send(client_sock, "LOGIN_SUCCESS\n", 14, 0);
-
+                // khoa mutex dam bao chon nhieu luong truy mot cach an toan
                 logged_in = 1;
                 pthread_mutex_lock(&clients_mutex);
                 strcpy(clients[i].username, username);
                 clients[i].logged_in = 1;
                 pthread_mutex_unlock(&clients_mutex);
-                /////////////////////////////LAY LICH SU TIN NHAN
+                // lay lich su tin nhan cu ngay sau khi dang nhap thanh cong
                 send_history(username, client_sock);
             }
             else
@@ -180,34 +184,37 @@ int main()
         fprintf(stderr, "Database init failed\n");
         return 1;
     }
-
+    // tao cac thread tuong ung user toi da 99
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         clients[i].sock = -1;
         clients[i].logged_in = 0;
         clients[i].username[0] = '\0';
     }
-
+    // tao socket va thiet lap dia chi
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in server_addr = {0};
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT);
     server_addr.sin_addr.s_addr = INADDR_ANY;
-
+    // gan socket voi dia chi IP va cong
     bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    // lang nghe ket noi toi da 10 ket noi o hang doi
     listen(server_fd, 10);
     printf("Server running on port %d...\n", PORT);
 
     while (1)
     {
+        // chap nhan clien ket noi
         int client_sock = accept(server_fd, NULL, NULL);
         int *pclient = malloc(sizeof(int));
         *pclient = client_sock;
         pthread_t tid;
+        // tao luong xu ly
         pthread_create(&tid, NULL, handle_client, pclient);
         pthread_detach(tid);
     }
 
-    close(server_fd);
+    close(server_fd); // ket thuc
     return 0;
 }

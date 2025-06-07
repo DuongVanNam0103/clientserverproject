@@ -1,6 +1,6 @@
 # Chat Application 
 
-day la bai tap em lam mot ung dung chat client-server don gian duoc viet bang ngon ngu C, cho phep nguoi dung dang ki max client la 100 user dang ki, su dung phuong thuc TCP, dang nhap va gui tin nhan he thong su dung co so du lieu SQLite de luu tru thong tin nguoi dung va tin nhan. database se tu dong tao hai bang de luu thong tin nguoi dang ki va lich su tin nhan.
+day la bai tap em lam mot ung dung chat client-server don gian duoc viet bang ngon ngu C, cho phep nguoi dung dang ki max client la 100 user dang ki, su dung phuong thuc TCP, dang nhap va gui tin nhan he thong su dung co so du lieu SQLite de luu tru thong tin nguoi dung va tin nhan. database se tu dong tao hai bang de luu thong tin nguoi dang ki va lich su tin nhan, dang bai em moi lam quen va lam trong thoi gian ngan mong cac anh cho em nhan xet de bai duoc hoan thien hon.
 ## Table of Contents
 
 1. [Introduction]
@@ -33,8 +33,10 @@ brew install sqlite
 ### Steps to Install
 
 
-##Compile the source code:
- make
+##Compile the source code:  
+
+ make  
+
 #run server:  
 
 ./bin/server  
@@ -60,29 +62,41 @@ brew install sqlite
 
 chat-app/  
 
-│
-├── bin/               
-│   ├── client
-│   └── server
-│
-├── build/             
-│   ├── client.o
-│   ├── database.o
-│   └── server.o
-│
-├── data/             
-│   └── chat.db
-│
-├── include/          
-│   └── database.h
-│
-├── src/               
-│   ├── client.c       
-│   ├── database.c     
-│   └── server.c      
-│
-├── Makefile           
-└── README.md          
+
+├── bin/  
+
+│   ├── client  
+
+│   └── server  
+
+├── build/  
+
+│   ├── client.o  
+
+│   ├── database.o  
+
+│   └── server.o  
+
+├── data/  
+
+│   └── chat.db  
+
+├── include/  
+
+│   └── database.h  
+
+├── src/  
+
+│   ├── client.c  
+
+│   ├── database.c  
+
+│   └── server.c  
+
+├── Makefile  
+
+└── README.md  
+
 
 Makefile           
 README.md          

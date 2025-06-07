@@ -1,15 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sqlite3.h>
-#include <openssl/sha.h>
-#include <sys/socket.h> // cho send
-#include <unistd.h>     // cho usleep
+#include <stdio.h>       //thu vien nhap xuat trong C
+#include <stdlib.h>      //chuyen doi du lieu, quan ly bo nho dong
+#include <string.h>      //thao tac voi chuoi ki tu trong c
+#include <sqlite3.h>     //thu vien lam viec voi SQL
+#include <openssl/sha.h> //su dung trong bao mat, tinh gia tri SHI
+#include <sys/socket.h>  // cho send, dung cho socket
+#include <unistd.h>      // cho sleep, tin trinh delay...
 #include "database.h"
 #define BUFFER_SIZE 1024
 
 sqlite3 *db;
-
+// tao file chat.db
 int init_database()
 {
     int rc = sqlite3_open("data/chat.db", &db);
@@ -18,7 +18,7 @@ int init_database()
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         return 0;
     }
-
+    // tao bang luu user va password dang ki
     const char *sql_users =
         "CREATE TABLE IF NOT EXISTS users ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -34,7 +34,7 @@ int init_database()
         return 0;
     }
 
-    /// tao bang cho ;uu tin nhan
+    /// tao bang cho luu lich su tin  tin nhan
     const char *sql_msgs =
         "CREATE TABLE IF NOT EXISTS messages ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -51,7 +51,7 @@ int init_database()
     }
     return 1;
 }
-
+// nhan mot gia tri mat khau va tra ve chuoi ki tu gia tri bam SHA
 char *hash_password(const char *password)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -62,7 +62,7 @@ char *hash_password(const char *password)
         sprintf(output + i * 2, "%02x", hash[i]);
     return output;
 }
-
+// dang ki nguoi dung moi va luu tru nguoi dung moi vao bang
 int register_user(const char *username, const char *password)
 {
     const char *sql = "INSERT INTO users (username, password_hash) VALUES (?, ?);";
@@ -77,7 +77,7 @@ int register_user(const char *username, const char *password)
     sqlite3_finalize(stmt);
     return rc == SQLITE_DONE;
 }
-
+// tim ten user da dang ki tu bang da luu
 int login_user(const char *username, const char *password)
 {
     const char *sql = "SELECT password_hash FROM users WHERE username = ?;";
@@ -95,6 +95,7 @@ int login_user(const char *username, const char *password)
     sqlite3_finalize(stmt);
     return result;
 }
+// ham luu lich su tin nhan vao bang
 int save_message(const char *sender, const char *receiver, const char *msg)
 {
     const char *sql = "INSERT INTO messages (sender, receiver, msg) VALUES (?, ?, ?);";
@@ -108,6 +109,7 @@ int save_message(const char *sender, const char *receiver, const char *msg)
     sqlite3_finalize(stmt);
     return rc == SQLITE_DONE;
 }
+// lay lich su tin nhan cua user khi dang nhap thanh cong
 int send_history(const char *username, int client_sock)
 
 {

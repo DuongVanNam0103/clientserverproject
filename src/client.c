@@ -1,16 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <pthread.h>
+#include <stdio.h>      //thu vien nhap xuat trong C
+#include <stdlib.h>     //chuyen doi du lieu, quan ly bo nho dong
+#include <string.h>     //thao tac voi chuoi ki tu trong c
+#include <unistd.h>     // cho sleep, tin trinh delay...
+#include <netinet/in.h> //giao thuc mang TCP/IP
+#include <arpa/inet.h>  //networking ip/TCP
+#include <pthread.h>    // quan ly cac luong
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
 int sock;
-
+// nha tin hieu tu may chu qua socket
 void *recv_handler(void *arg)
 {
     char buffer[BUFFER_SIZE];
@@ -29,6 +29,7 @@ void *recv_handler(void *arg)
     return NULL;
 }
 ////////////////////////////////
+// menu lua chon cho cac client
 void show_main_menu()
 {
     printf("\nMenu:\n");
@@ -38,6 +39,7 @@ void show_main_menu()
     printf("Select an option: ");
 }
 /////////////////////////////////////////
+// ham nhap dang ki user password
 void register_user_in()
 {
     char username[50], password[50];
@@ -57,6 +59,7 @@ void register_user_in()
     send(sock, buffer, strlen(buffer), 0);
 }
 //////////////////////////////////////////////////////////
+// ham dang nhap
 void login_user_in()
 {
     char username[50], password[50];
@@ -76,6 +79,7 @@ void login_user_in()
     send(sock, buffer, strlen(buffer), 0);
 }
 /////////////////////////////////////////////////////////////
+// gui tin nhan cho client khac
 void send_message()
 {
     char to_user[50], message[BUFFER_SIZE];
@@ -97,24 +101,25 @@ void send_message()
 ////////////////////////////////////////////////////////////////////////
 int main()
 {
+    // tao socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
     {
         perror("socket failed");
         return 1;
     }
-
+    // thiet lap dia chi server
     struct sockaddr_in server_addr = {0};
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT);
     inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
-
+    // ket noi toi server
     if (connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         perror("Connection failed");
         return 1;
     }
-
+    // luong nhan du lieu
     pthread_t recv_thread;
     if (pthread_create(&recv_thread, NULL, recv_handler, NULL) != 0)
     {
@@ -141,11 +146,12 @@ int main()
 
     while (1)
     {
+        // ham menu se xuat hien lien tuc sau moi tuy  chon
         show_main_menu();
         int num;
         scanf("%d", &num);
         getchar();
-
+        // su dung switch de lua chon menu
         switch (num)
         {
         case 1:
@@ -163,6 +169,6 @@ int main()
         }
     }
 
-    close(sock);
+    close(sock); // ket thuc socket
     return 0;
 }
